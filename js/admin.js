@@ -76,7 +76,7 @@ root.innerHTML = `
     <div id="ad-tb-pending" class="mt-4"></div>
   </section>
 </div>
-<div id="ad-pop" class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-200" style="display:none;position:fixed;z-index:50;pointer-events:none"></div>`;
+<div id="ad-pop" class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-200" style="display:none;position:fixed;z-index:50"></div>`;
 if (main) main.after(root);
 const $ = (sel) => root.querySelector(sel);
 
@@ -148,7 +148,7 @@ function chartHtml(days, key) {
     const label = i % 2 === (days.length - 1) % 2
       ? '<text x="' + (x + (bw - 4) / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" fill="#64748b">' + tgl.slice(8, 10) + '/' + tgl.slice(5, 7) + '</text>'
       : '';
-    return '<rect x="' + x + '" y="' + (H - pb - h) + '" width="' + (bw - 4) + '" height="' + h + '" rx="2" fill="' + (last ? '#0284c7' : '#7dd3fc') + '"/>' + label;
+    return '<rect x="' + x + '" y="' + (H - pb - h) + '" width="' + (bw - 4) + '" height="' + h + '" rx="2" data-info="' + esc(String(d.tanggal).slice(8, 10) + '/' + String(d.tanggal).slice(5, 7) + ': ' + fmt(vals[i])) + '" style="cursor:pointer" fill="' + (last ? '#0284c7' : '#7dd3fc') + '"/>' + label;
   }).join('');
   return '<p class="text-sm font-semibold text-slate-800">' + (liter ? 'Air keluar' : 'Pendapatan') + ' (14 hari terakhir)</p>'
     + '<p class="mt-1 text-xs text-slate-500">Total ' + esc(fmt(total)) + ' · Hari ini ' + esc(fmt(today)) + '</p>'
@@ -369,11 +369,32 @@ $('#ad-user-rows').addEventListener('click', (e) => {
 });
 
 // popup grafik: desktop = arahkan kursor, layar sentuh = ketuk
+let hideT = null;
+const schedHide = () => { clearTimeout(hideT); hideT = setTimeout(hidePop, 250); };
+const popEl = $('#ad-pop');
+if (popEl) { popEl.addEventListener('mouseenter', () => clearTimeout(hideT)); popEl.addEventListener('mouseleave', schedHide); }
+if (popEl) {
+  const showTip = (e) => {
+    const r = e.target.closest && e.target.closest('rect[data-info]');
+    if (!r) return;
+    let t = popEl.querySelector('#ad-tip');
+    if (!t) {
+      t = document.createElement('p');
+      t.id = 'ad-tip';
+      t.className = 'mt-1 text-sm font-semibold text-sky-700';
+      const svg = popEl.querySelector('svg');
+      if (svg) svg.parentNode.insertBefore(t, svg.nextSibling);
+    }
+    t.textContent = r.dataset.info;
+  };
+  popEl.addEventListener('mouseover', showTip);
+  popEl.addEventListener('click', (e) => { e.stopPropagation(); showTip(e); });
+}
 const canHover = !!(window.matchMedia && window.matchMedia('(hover: hover)').matches);
 root.querySelectorAll('[data-chart]').forEach((card) => {
   if (canHover) {
-    card.addEventListener('mouseenter', () => showPop(card));
-    card.addEventListener('mouseleave', hidePop);
+    card.addEventListener('mouseenter', () => { clearTimeout(hideT); showPop(card); });
+    card.addEventListener('mouseleave', schedHide);
   } else {
     card.addEventListener('click', (e) => {
       e.stopPropagation();

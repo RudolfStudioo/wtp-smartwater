@@ -5,28 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Water Meter</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    
-<script>try{var t=localStorage.getItem("theme");var d=t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches;if(d)document.documentElement.classList.add("dark")}catch(e){}</script>
+
+    <script>
+      try {
+        var t = localStorage.getItem("theme");
+        var d = t
+          ? t === "dark"
+          : matchMedia("(prefers-color-scheme: dark)").matches;
+        if (d) document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.13/dist/index.global.js"></script>
-    
+
     <!-- Midtrans Snap JS -->
-    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="Mid-client-dCySdhVGUHm7wshZ"></script>
-    
+    <script
+      type="text/javascript"
+      src="https://app.sandbox.midtrans.com/snap/snap.js"
+      data-client-key="Mid-client-dCySdhVGUHm7wshZ"
+    ></script>
+
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/extras.css">
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/extras.css" />
   </head>
   <body class="bg-slate-100 text-slate-800 min-h-screen">
     <div id="app">
       <!-- Header -->
       <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <div
+          class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3"
+        >
           <h1 class="text-lg font-bold text-sky-700">Smart Water Meter</h1>
           <div class="flex items-center gap-2">
-            <select id="deviceSelect" class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm">
+            <select
+              id="deviceSelect"
+              class="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm"
+            >
               <option value="WM-001">WM-001</option>
               <option value="WM-002">WM-002</option>
               <option value="WM-003">WM-003</option>
@@ -34,8 +51,18 @@
           </div>
         </div>
         <nav class="mx-auto flex max-w-5xl gap-1 px-4">
-          <button class="tab-button active border-b-2 border-sky-600 px-4 py-2 text-sm font-medium text-sky-700" data-tab="dashboard">Dashboard</button>
-          <button class="tab-button border-b-2 border-transparent px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800" data-tab="monitoring">Monitoring</button>
+          <button
+            class="tab-button active border-b-2 border-sky-600 px-4 py-2 text-sm font-medium text-sky-700"
+            data-tab="dashboard"
+          >
+            Dashboard
+          </button>
+          <button
+            class="tab-button border-b-2 border-transparent px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800"
+            data-tab="monitoring"
+          >
+            Monitoring
+          </button>
         </nav>
       </header>
 
@@ -43,72 +70,221 @@
         <!-- Dashboard Tab -->
         <section id="tab-dashboard" class="tab-content">
           <div class="grid gap-4 lg:grid-cols-5">
-            <section class="rounded-2xl bg-sky-600 p-6 text-white lg:col-span-2">
-              <p class="text-sm text-sky-100">Sisa kuota <span id="dashboard-device">WM-001</span></p>
+            <section
+              class="rounded-2xl bg-sky-600 p-6 text-white lg:col-span-2"
+            >
+              <p class="text-sm text-sky-100">
+                Sisa kuota <span id="dashboard-device">WM-001</span>
+              </p>
               <p class="mt-2 text-5xl font-bold">
                 <span id="sisa-liter">...</span>
                 <span class="ml-2 text-xl font-medium text-sky-100">liter</span>
               </p>
-              <p id="dashboard-error" class="mt-3 text-sm text-sky-100 hidden"></p>
-              <p id="dashboard-info" class="mt-3 text-sm text-sky-100">Tarif Rp5.000 per m³ (Rp5 per liter)</p>
+              <p
+                id="dashboard-error"
+                class="mt-3 text-sm text-sky-100 hidden"
+              ></p>
+              <p id="dashboard-info" class="mt-3 text-sm text-sky-100">
+                Tarif Rp2.000 per liter
+              </p>
             </section>
 
-            <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 lg:col-span-3">
-              <h2 class="text-lg font-semibold text-slate-800">Isi ulang token</h2>
+            <section
+              class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 lg:col-span-3"
+            >
+              <h2 class="text-lg font-semibold text-slate-800">
+                Isi ulang token
+              </h2>
 
               <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <button class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50" data-nominal="20000">Rp20.000</button>
-                <button class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50" data-nominal="50000">Rp50.000</button>
-                <button class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50" data-nominal="100000">Rp100.000</button>
-                <button class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50" data-nominal="200000">Rp200.000</button>
+                <button
+                  class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  data-nominal="20000"
+                >
+                  Rp20.000
+                </button>
+                <button
+                  class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  data-nominal="50000"
+                >
+                  Rp50.000
+                </button>
+                <button
+                  class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  data-nominal="100000"
+                >
+                  Rp100.000
+                </button>
+                <button
+                  class="quick-nominal rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  data-nominal="200000"
+                >
+                  Rp200.000
+                </button>
               </div>
 
-              <label class="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500">Nominal (Rp)</label>
-              <input id="nominal-input" type="text" inputmode="numeric" autocomplete="off" placeholder="Rp10.000" value="Rp20.000" class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-sky-400" />
-              <p id="nominal-error" class="mt-1 text-xs text-slate-500">Min Rp10.000, maks Rp1.000.000</p>
+              <label
+                class="mt-4 block text-xs font-medium uppercase tracking-wide text-slate-500"
+                >Nominal (Rp)</label
+              >
+              <input
+                id="nominal-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="Rp10.000"
+                value="Rp20.000"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-lg outline-none focus:ring-2 focus:ring-sky-400"
+              />
+              <p id="nominal-error" class="mt-1 text-xs text-slate-500">
+                Min Rp10.000, maks Rp1.000.000
+              </p>
 
-              <div class="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+              <div
+                class="mt-4 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3"
+              >
                 <span class="text-sm text-slate-600">Kuota yang didapat</span>
-                <span id="liter-got" class="text-lg font-semibold text-sky-700">+4.000 L</span>
+                <span id="liter-got" class="text-lg font-semibold text-sky-700"
+                  >+4.000 L</span
+                >
               </div>
 
-              <button id="pay-button" class="mt-4 w-full rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50">Bayar & isi token</button>
+              <button
+                id="pay-button"
+                class="mt-4 w-full rounded-xl bg-sky-600 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Bayar & isi token
+              </button>
 
-              <p id="payment-message" class="mt-3 rounded-xl px-4 py-3 text-sm hidden"></p>
+              <p
+                id="payment-message"
+                class="mt-3 rounded-xl px-4 py-3 text-sm hidden"
+              ></p>
             </section>
 
-            <section class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 lg:col-span-5">
-              <h2 class="text-lg font-semibold text-slate-800">Riwayat transaksi</h2>
-              <p class="mt-3 text-sm text-slate-500">Belum tersambung ke database. Dikerjakan di langkah berikutnya.</p>
+            <section
+              class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 lg:col-span-5"
+            >
+              <h2 class="text-lg font-semibold text-slate-800">
+                Riwayat transaksi
+              </h2>
+              <p class="mt-3 text-sm text-slate-500">
+                Belum tersambung ke database. Dikerjakan di langkah berikutnya.
+              </p>
             </section>
           </div>
         </section>
 
         <!-- Monitoring Tab -->
         <section id="tab-monitoring" class="tab-content hidden">
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Koneksi alat</p>
-              <p id="status-online" class="mt-2 text-2xl font-bold text-slate-800">...</p>
-              <p id="status-ping" class="mt-1 text-xs text-slate-500">Belum pernah ping</p>
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div
+              class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200"
+            >
+              <p
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+              >
+                Koneksi alat
+              </p>
+              <p
+                id="status-online"
+                class="mt-3 text-4xl font-bold text-slate-800"
+              >
+                ...
+              </p>
+              <p id="status-ping" class="mt-2 text-sm text-slate-500">
+                Belum pernah ping
+              </p>
+              <div class="mt-5 border-t border-slate-200 pt-3">
+                <p class="mon-waktu text-xs text-slate-400"></p>
+              </div>
             </div>
-            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Katup</p>
-              <p id="status-katup" class="mt-2 text-2xl font-bold text-slate-700">...</p>
+            <div
+              class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200"
+            >
+              <p
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+              >
+                Katup
+              </p>
+              <p
+                id="status-katup"
+                class="mt-3 text-4xl font-bold text-slate-700"
+              >
+                ...
+              </p>
+              <div class="mt-5 border-t border-slate-200 pt-3">
+                <p class="mon-waktu text-xs text-slate-400"></p>
+              </div>
             </div>
-            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Debit</p>
-              <p id="status-debit" class="mt-2 text-2xl font-bold text-slate-800">0.00 L/mnt</p>
+            <div
+              class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200"
+            >
+              <p
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+              >
+                Debit
+              </p>
+              <p
+                id="status-debit"
+                class="mt-3 text-4xl font-bold text-slate-800"
+              >
+                0.00 L/mnt
+              </p>
+              <div class="mt-5 border-t border-slate-200 pt-3">
+                <p class="mon-waktu text-xs text-slate-400"></p>
+              </div>
             </div>
-            <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-              <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Sisa kuota</p>
-              <p id="status-sisa" class="mt-2 text-2xl font-bold text-slate-800">... L</p>
-            </div>
-            <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:col-span-2 lg:col-span-4">
-              <h2 class="text-lg font-semibold text-slate-800">Grafik debit</h2>
-              <p class="mt-2 text-sm text-slate-500">Menyusul setelah alat mengirim data.</p>
+            <div
+              class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200"
+            >
+              <p
+                class="text-xs font-medium uppercase tracking-wide text-slate-500"
+              >
+                Sisa kuota
+              </p>
+              <p
+                id="status-sisa"
+                class="mt-3 text-4xl font-bold text-slate-800"
+              >
+                ... L
+              </p>
+              <div class="mt-5 border-t border-slate-200 pt-3">
+                <p class="mon-waktu text-xs text-slate-400"></p>
+              </div>
             </div>
           </div>
+          <script>
+            (function () {
+              var ids = [
+                "status-online",
+                "status-katup",
+                "status-debit",
+                "status-sisa",
+              ];
+              function stamp() {
+                var t = new Date().toLocaleTimeString("id-ID", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                });
+                document.querySelectorAll(".mon-waktu").forEach(function (e) {
+                  e.textContent = "Diperbarui " + t;
+                });
+              }
+              var obs = new MutationObserver(stamp);
+              ids.forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el)
+                  obs.observe(el, {
+                    childList: true,
+                    characterData: true,
+                    subtree: true,
+                  });
+              });
+              stamp();
+            })();
+          </script>
         </section>
       </main>
     </div>

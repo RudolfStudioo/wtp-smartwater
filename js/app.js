@@ -207,6 +207,28 @@ async function loadDeviceData() {
       }
       
       statusDebitEl.textContent = Number(data.debit_realtime || 0).toFixed(2) + ' L/mnt';
+
+      // Estimasi kuota habis = sisa / debit (hanya saat air mengalir)
+      let est = document.getElementById('est-selesai');
+      if (!est) {
+        est = document.createElement('p');
+        est.id = 'est-selesai';
+        est.className = 'mt-1 text-sm text-white';
+        dashboardInfo.parentNode.insertBefore(est, dashboardInfo.nextSibling);
+      }
+      const debitNow = Number(data.debit_realtime || 0);
+      const pingAge = data.last_ping ? (Date.now() - new Date(data.last_ping).getTime()) / 1000 : Infinity;
+      if (sisa <= 0) {
+        est.textContent = 'Kuota habis';
+      } else if (debitNow > 0.05 && pingAge < 60) {
+        const menit = Math.round(sisa / debitNow);
+        const jam = Math.floor(menit / 60);
+        const durasi = jam ? jam + ' j ' + (menit % 60) + ' mnt' : menit + ' mnt';
+        const jamHabis = new Date(Date.now() + menit * 60000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        est.textContent = 'Estimasi habis ±' + durasi + ' (sekitar ' + jamHabis + ')';
+      } else {
+        est.textContent = 'Estimasi habis: air tidak sedang mengalir';
+      }
     }
   } catch (err) {
     dashboardError.textContent = 'Error: ' + err.message;
