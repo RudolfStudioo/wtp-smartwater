@@ -45,6 +45,7 @@ function init() {
     currentDeviceId = e.target.value;
     dashboardDevice.textContent = currentDeviceId;
     loadDeviceData();
+    loadRiwayat();
   });
   
   tabButtons.forEach(btn => {
@@ -75,6 +76,7 @@ function init() {
   // Load initial data
   dashboardDevice.textContent = currentDeviceId;
   loadDeviceData();
+  loadRiwayat();
   setInterval(loadDeviceData, 5000);
     if (supabase) {
     supabase
@@ -350,4 +352,22 @@ async function loadTarif() {
       updateLiterDisplay();
     }
   } catch (e) {}
+}
+
+async function loadRiwayat() {
+  const el = document.getElementById('riwayat-list');
+  if (!el || !supabase) return;
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('created_at,nominal,liter_diperoleh,metode_pembayaran')
+    .eq('device_id', currentDeviceId)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  if (error) { el.textContent = 'Gagal memuat riwayat: ' + error.message; return; }
+  if (!data.length) { el.textContent = 'Belum ada transaksi.'; return; }
+  el.innerHTML = data.map(r =>
+    `<div class="flex justify-between border-b border-slate-100 py-2">
+      <span>${new Date(r.created_at).toLocaleString('id-ID')}</span>
+      <span>${formatRupiah(r.nominal)} · +${Number(r.liter_diperoleh)} L</span>
+    </div>`).join('');
 }
