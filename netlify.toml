@@ -2,6 +2,15 @@
   publish = "."
   functions = "functions"
 
+[build.environment]
+  # SUPABASE_URL is public (the browser client uses it alongside the publishable key),
+  # and MIDTRANS_IS_PRODUCTION is just "true"/"false", which matches ordinary code.
+  # Real secrets (MIDTRANS_SERVER_KEY, SUPABASE_SERVICE_ROLE_KEY) are still scanned.
+  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_URL,MIDTRANS_IS_PRODUCTION"
+
+[functions]
+  node_bundler = "esbuild"
+
 [dev]
   publish = "."
   framework = "#static"
