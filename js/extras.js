@@ -22,6 +22,23 @@ function make(tag, attrs = {}, html = '') {
 
 let current = null; // kunci akun yang sedang masuk
 let ready = false; // true setelah status sesi pertama diketahui
+let namaCust = ''; // nama customer dari tabel devices
+
+async function loadNama() {
+  namaCust = '';
+  const dev = current ? ACCOUNTS[current].device : null;
+  if (dev && supabase) {
+    try {
+      const { data } = await supabase
+        .from('devices')
+        .select('nama')
+        .eq('device_id', dev)
+        .maybeSingle();
+      namaCust = (data && data.nama) || '';
+    } catch (e) {}
+  }
+  render();
+}
 
 // ---------- Akun tersimpan (untuk ganti akun cepat) ----------
 function loadSaved() {
@@ -212,9 +229,9 @@ function syncDevice() {
 function render() {
   const acc = current ? ACCOUNTS[current] : null;
   $('.uw-user-name', userBox).textContent = acc ? acc.label : 'Belum masuk';
-  $('.uw-user-role', userBox).textContent = acc ? acc.role : '';
+  $('.uw-user-role', userBox).textContent = acc ? (namaCust || acc.role) : '';
   $('#uw-menu-name').textContent = acc ? acc.label : 'Belum masuk';
-  $('#uw-menu-role').textContent = acc ? acc.role : '';
+  $('#uw-menu-role').textContent = acc ? (namaCust || acc.role) : '';
   $('#uw-theme-chip').textContent = isDark() ? 'Gelap' : 'Terang';
 
   const forced = ready && !acc && !!supabase;
@@ -232,6 +249,7 @@ function applySession(session) {
   ready = true;
   render();
   syncDevice();
+  loadNama();
 }
 
 if (supabase) {
